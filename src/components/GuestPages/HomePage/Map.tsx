@@ -31,7 +31,7 @@ const Map: React.FC<Props> = ({ placesFound }) => {
 	const [showPlaceModal, setShowPlaceModal] = useState(false)
 	const [clickedPlace, setClickedPlace] = useState<Place | null>(null)
 
-	const { data: places, getCollection, error } = useStreamPlacesByLocality(locality, category, supply)
+	const { data: places, getCollection, error } = useStreamPlacesByLocality( category, supply)
 
 	const basicActions = (results: google.maps.GeocoderResult[]) => {
 		try {
@@ -178,7 +178,7 @@ const Map: React.FC<Props> = ({ placesFound }) => {
 			mapContainerClassName="map-container"
 			mapContainerStyle={{
 				width: "100%",
-				height: "100vh",
+				height: "calc(100vh - 130px)",
 			}}
 		>
 			{usersPosition && (

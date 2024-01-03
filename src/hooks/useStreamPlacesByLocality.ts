@@ -3,7 +3,8 @@ import useStreamCollection from './useStreamCollection'
 import { placesCol } from '../services/firebase'
 import { Place } from '../types/Place.types'
 
-const useStreamPlacesByLocality = (locality: string, category: string, supply: string) => {
+// const useStreamPlacesByLocality = (locality: string, category: string, supply: string) => {
+const useStreamPlacesByLocality = ( category: string, supply: string) => {
 	return useStreamCollection<Place>(
 		placesCol,
 		where("isApproved", "==", true),
