@@ -33,7 +33,8 @@ const PlacesAutoComplete: React.FC<Props> = ({ onClickedPlace, searchPlacesOfTyp
         requestOptions: {
             bounds: saoPauloBounds,
             componentRestrictions: { country: 'BR' },
-            types: searchPlacesOfTypes ?? ['address']
+            // types: searchPlacesOfTypes ?? ['address']
+            types: searchPlacesOfTypes ?? ['establishment']
         },
     });
 
