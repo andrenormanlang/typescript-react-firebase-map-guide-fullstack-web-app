@@ -11,14 +11,14 @@ An app that acts as a food guide for those moments when you're "hangry" but don'
 ## Technical Requirements
 
 - All data is fetched, created, and updated using Firebase.
-- Google Maps displays food places from the Firebase Firestore database.
+- OpenStreetMap (via Leaflet) displays food places from the Firebase Firestore database.
 - Responsive design.
 - Component-based architecture.
 - Uses React Router for navigation.
 - Utilizes Firebase Firestore, Authentication, and Storage.
 - Implements React Table for tabular data.
 - Utilizes React Hook Form for form handling.
-- Integrates Google Maps for location-based features.
+- Integrates OpenStreetMap + Nominatim (geocoding) for location-based features.
 - Adheres to the principle of separating API communication into intermediate layers.
 - Uses Bootstrap and SCSS for UI styling.
 
@@ -32,7 +32,6 @@ An app that acts as a food guide for those moments when you're "hangry" but don'
 - Sort the restaurant list by name.
 - See their own position on the map.
 - Search for restaurants by typing in a location (with autocomplete).
-- Get directions to a selected eatery via Google Maps.
 - Recommend new places to eat.
 
 ### Prerequisites

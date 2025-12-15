@@ -1,119 +1,138 @@
-import React, { useEffect, useState } from 'react';
-import { Form, ListGroup, ListGroupItem } from 'react-bootstrap';
-import useOnclickOutside from 'react-cool-onclickoutside';
-import { useSearchParams } from 'react-router-dom';
-import usePlacesAutoComplete, { getGeocode } from 'use-places-autocomplete';
+import React, { useEffect, useMemo, useState } from "react";
+import { Form, ListGroup, ListGroupItem } from "react-bootstrap";
+import useOnclickOutside from "react-cool-onclickoutside";
+import { useSearchParams } from "react-router-dom";
+import {
+	nominatimSearchInSaoPaulo,
+	type NominatimSearchResult,
+} from "../../../services/nominatim";
 
 type Props = {
-    onClickedPlace: (results: google.maps.GeocoderResult[], placeName: string) => void;
-    searchPlacesOfTypes?: string[] | undefined;
-    placeHolderText: string;
-    showInitialPlace?: boolean;
+	onClickedPlace: (result: NominatimSearchResult, placeName: string) => void;
+	searchPlacesOfTypes?: string[] | undefined;
+	placeHolderText: string;
+	showInitialPlace?: boolean;
 };
 
-const PlacesAutoComplete: React.FC<Props> = ({ onClickedPlace, searchPlacesOfTypes, placeHolderText, showInitialPlace }) => {
-    const [showUl, setShowUl] = useState<boolean>(false);
-    const [searchParams] = useSearchParams();
-    const locality = searchParams.get("locality") ?? "São Paulo";
+const PlacesAutoComplete: React.FC<Props> = ({
+	onClickedPlace,
+	searchPlacesOfTypes,
+	placeHolderText,
+	showInitialPlace,
+}) => {
+	const [showUl, setShowUl] = useState<boolean>(false);
+	const [searchParams] = useSearchParams();
+	const locality = searchParams.get("locality") ?? "São Paulo";
 
-    // Define the bounds for São Paulo
-    const saoPauloBounds = new google.maps.LatLngBounds(
-        new google.maps.LatLng(-23.356603, -46.825514), // Southwest corner
-        new google.maps.LatLng(-24.008814, -46.365052)  // Northeast corner
-    );
+	const [ready] = useState(true);
+	const [value, setValue] = useState("");
+	const [results, setResults] = useState<NominatimSearchResult[]>([]);
+	const [status, setStatus] = useState<"IDLE" | "OK" | "ERROR">("IDLE");
 
-    // Initialize the usePlacesAutoComplete hook with updated requestOptions
-    const {
-        ready,
-        value,
-        setValue,
-        suggestions: { status, data },
-        clearSuggestions,
-    } = usePlacesAutoComplete({
-        requestOptions: {
-            bounds: saoPauloBounds,
-            componentRestrictions: { country: 'BR' },
-            // types: searchPlacesOfTypes ?? ['address']
-            types: searchPlacesOfTypes ?? ['establishment']
-        },
-    });
+	const clearSuggestions = () => {
+		setResults([]);
+		setStatus("IDLE");
+	};
 
-    const ref = useOnclickOutside(() => {
-        clearSuggestions();
-        setShowUl(false);
-        if (!showInitialPlace) {
-            setValue(locality + ', Brasil');
-        }
-    });
+	const ref = useOnclickOutside(() => {
+		clearSuggestions();
+		setShowUl(false);
+		if (!showInitialPlace) {
+			setValue(locality + ", Brasil");
+		}
+	});
 
-    const handleInputClick = () => {
-        setValue('');
-        setShowUl(true);
-    };
+	const handleInputClick = () => {
+		setValue("");
+		setShowUl(true);
+	};
 
-	const filteredSuggestions = data.filter(
-        (suggestion) => suggestion.description.includes('São Paulo')
-    );
+	const filteredSuggestions = useMemo(() => {
+		if (!results.length) return [];
+		return results.filter((r) => r.display_name.includes("São Paulo"));
+	}, [results]);
 
+	const handleSelect = (result: NominatimSearchResult) => async () => {
+		const display = result.display_name;
+		setValue(display);
+		clearSuggestions();
+		setShowUl(false);
 
-    const handleSelect = ({ description, structured_formatting }: google.maps.places.AutocompletePrediction) => (
-        async () => {
-            setValue(description, false);
-            clearSuggestions();
+		const placeName =
+			result.name ?? display.split(",")[0]?.trim() ?? display;
+		onClickedPlace(result, placeName);
+	};
 
-            const results = await getGeocode({
-				address: `${description}, São Paulo`,
-				componentRestrictions: { country: 'BR' }
-			});
-            const placeName = structured_formatting.main_text;
-            onClickedPlace(results, placeName);
-        }
-    );
+	useEffect(() => {
+		setShowUl(false);
+		if (!showInitialPlace) {
+			setValue(locality + ", Brasil");
+		}
+	}, [setValue, locality, showInitialPlace]);
 
+	useEffect(() => {
+		// Keep prop for backwards compatibility; currently unused for Nominatim.
+		void searchPlacesOfTypes;
+	}, [searchPlacesOfTypes]);
 
+	useEffect(() => {
+		const query = value.trim();
+		if (!showUl) return;
+		if (query.length < 3) {
+			clearSuggestions();
+			return;
+		}
 
-    useEffect(() => {
-        setShowUl(false);
-        if (!showInitialPlace) {
-            setValue(locality + ', Brasil');
-        }
-    }, [setValue, locality, showInitialPlace]);
+		const timer = window.setTimeout(async () => {
+			try {
+				const nextResults = await nominatimSearchInSaoPaulo(query);
+				setResults(nextResults);
+				setStatus(nextResults.length ? "OK" : "IDLE");
+			} catch {
+				setStatus("ERROR");
+				setResults([]);
+			}
+		}, 250);
 
-    return (
-        <div ref={ref}>
-            <Form.Control
-                role='combobox'
-                onClick={handleInputClick}
-                value={value}
-                onChange={e => setValue(e.target.value)}
-                disabled={!ready}
-                placeholder={placeHolderText}
-            />
-            {status === 'OK' && showUl &&
-                <ListGroup
-                    style={{
-                        position: 'absolute',
-                    }}
-                >
-                    {filteredSuggestions.map((suggestion) => {
-                        const {
-                            place_id,
-                            structured_formatting: { main_text, secondary_text }
-                        } = suggestion;
+		return () => window.clearTimeout(timer);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [value, showUl]);
 
-                        return (
-                            <ListGroupItem
-                                key={place_id}
-                                onClick={handleSelect(suggestion)}>
-                                <strong>{main_text}</strong> <small>{secondary_text}</small>
-                            </ListGroupItem>
-                        );
-                    })}
-                </ListGroup>
-            }
-        </div>
-    );
+	return (
+		<div ref={ref}>
+			<Form.Control
+				role="combobox"
+				onClick={handleInputClick}
+				value={value}
+				onChange={(e) => setValue(e.target.value)}
+				disabled={!ready}
+				placeholder={placeHolderText}
+			/>
+			{status === "OK" && showUl && (
+				<ListGroup
+					style={{
+						position: "absolute",
+					}}
+				>
+					{filteredSuggestions.map((result) => {
+						const display = result.display_name;
+						const [main, ...rest] = display.split(",");
+						const secondary = rest.join(",").trim();
+
+						return (
+							<ListGroupItem
+								key={result.place_id}
+								onClick={handleSelect(result)}
+							>
+								<strong>{main?.trim()}</strong>{" "}
+								{secondary ? <small>{secondary}</small> : null}
+							</ListGroupItem>
+						);
+					})}
+				</ListGroup>
+			)}
+		</div>
+	);
 };
 
 export default PlacesAutoComplete;
-

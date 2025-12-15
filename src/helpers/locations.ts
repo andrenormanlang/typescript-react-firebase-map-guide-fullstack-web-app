@@ -1,21 +1,17 @@
+import type { NominatimReverseResult } from "../services/nominatim";
+
 /**
- * A function for extracting the locality name from the getGeocode()-results
- *
- * @param results @type google.maps.GeocoderResult[]
- * @returns The name of the city searched for
+ * Extract a locality/city name from a Nominatim reverse-geocode response.
  */
-export const findAdressComponent = (results: google.maps.GeocoderResult[]) => {
+export const findAdressComponent = (result: NominatimReverseResult) => {
+	const address = result.address;
+	if (!address) return;
 
-	const component = results[0]?.address_components.find((component) => {
-		if (component.types.includes("postal_town") ||
-			(component.types.includes("locality"))) {
-			return true
-		} else {
-			return false
-		}
-	})
-
-	if (!component) return
-	return component.long_name
-}
-
+	return (
+		address.city ??
+		address.town ??
+		address.village ??
+		address.municipality ??
+		address.county
+	);
+};
