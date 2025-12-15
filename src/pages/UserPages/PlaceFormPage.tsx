@@ -13,6 +13,7 @@ import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { placesCol } from "../../services/firebase";
+import { formatStreetAddress } from "../../helpers/locations";
 import { Category, Place, Supply } from "../../types/Place.types";
 import type { LatLngLiteral } from "../../types/Geo.types";
 import {
@@ -170,7 +171,10 @@ const PlaceFormPage = () => {
 										setPlaceName(name);
 
 										const selectedAddress =
-											result.display_name || "";
+											formatStreetAddress(
+												result.display_name || "",
+												{ placeName: name }
+											);
 										setValue(
 											"streetAddress",
 											selectedAddress
