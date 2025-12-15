@@ -157,7 +157,8 @@ const buildBrazilianStyleAddressFromDisplayName = (
 
 	// Neighborhood: last part between street and city.
 	const startNeighborhood = Math.min(streetIndex + 1, parts.length);
-	const endNeighborhood = cityIndex > 0 ? cityIndex : (stateIndex > 0 ? stateIndex : parts.length);
+	const endNeighborhood =
+		cityIndex > 0 ? cityIndex : stateIndex > 0 ? stateIndex : parts.length;
 	const neighborhoodCandidates = parts.slice(
 		startNeighborhood,
 		endNeighborhood
