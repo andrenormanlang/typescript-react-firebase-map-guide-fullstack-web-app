@@ -54,7 +54,8 @@ export const nominatimSearch = async (
 	url.searchParams.set("format", "jsonv2");
 	url.searchParams.set("q", query);
 	url.searchParams.set("addressdetails", "1");
-	url.searchParams.set("limit", "10");
+	// increase limit to improve POI coverage for short name queries
+	url.searchParams.set("limit", "50");
 	url.searchParams.set(
 		"countrycodes",
 		(options?.countryCodes ?? DEFAULT_COUNTRY_CODES).join(",")
@@ -84,7 +85,8 @@ export const nominatimSearchInSaoPaulo = async (
 	url.searchParams.set("format", "jsonv2");
 	url.searchParams.set("q", query);
 	url.searchParams.set("addressdetails", "1");
-	url.searchParams.set("limit", "10");
+	// increase limit to improve POI coverage inside the São Paulo viewbox
+	url.searchParams.set("limit", "50");
 	url.searchParams.set("countrycodes", "br");
 	url.searchParams.set("accept-language", "pt-BR");
 	// Rough bounding box for São Paulo metro area: left, top, right, bottom

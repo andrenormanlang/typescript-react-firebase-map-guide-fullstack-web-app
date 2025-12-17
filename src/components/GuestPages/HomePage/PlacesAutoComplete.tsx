@@ -4,6 +4,7 @@ import useOnclickOutside from "react-cool-onclickoutside";
 import { useSearchParams } from "react-router-dom";
 import {
 	nominatimSearch,
+	nominatimSearchInSaoPaulo,
 	type NominatimSearchResult,
 } from "../../../services/nominatim";
 
@@ -85,7 +86,47 @@ const PlacesAutoComplete: React.FC<Props> = ({
 
 		const timer = window.setTimeout(async () => {
 			try {
-				const nextResults = await nominatimSearch(query);
+				// Choose search strategy based on the requested locality
+				const localityLower = locality.toLowerCase();
+				let nextResults: NominatimSearchResult[] = [];
+				if (
+					localityLower.includes("são paulo") ||
+					localityLower.includes("sao paulo")
+				) {
+					// use the bounded São Paulo helper for better local results
+					nextResults = await nominatimSearchInSaoPaulo(query);
+					// If the bounded SP search returned nothing, fall back to a wider Brazil search
+					if (!nextResults.length) {
+						nextResults = await nominatimSearch(query, {
+							countryCodes: ["br"],
+							acceptLanguage: "pt-BR",
+						});
+					}
+				} else if (
+					localityLower.includes("copenhagen") ||
+					localityLower.includes("köbenhavn") ||
+					localityLower.includes("københavn")
+				) {
+					nextResults = await nominatimSearch(query, {
+						countryCodes: ["dk"],
+						acceptLanguage: "da",
+					});
+				} else if (
+					localityLower.includes("lund") ||
+					localityLower.includes("malmö") ||
+					localityLower.includes("malmo")
+				) {
+					nextResults = await nominatimSearch(query, {
+						countryCodes: ["se"],
+						acceptLanguage: "sv",
+					});
+				} else {
+					// fallback to wider search (BR/SE/DK)
+					nextResults = await nominatimSearch(query, {
+						countryCodes: ["br", "se", "dk"],
+						acceptLanguage: "pt-BR,en",
+					});
+				}
 				setResults(nextResults);
 				setStatus(nextResults.length ? "OK" : "IDLE");
 			} catch {

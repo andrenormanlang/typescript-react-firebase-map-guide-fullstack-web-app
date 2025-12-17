@@ -97,6 +97,13 @@ const HomeMap: React.FC<Props> = ({ placesFound }) => {
 		}
 	};
 
+	// When the user's position is obtained, center the map on their coordinates.
+	useEffect(() => {
+		if (usersPosition) {
+			setCenter(usersPosition);
+		}
+	}, [usersPosition]);
+
 	const handleFilterCategoryChoice = (passedFilter: string) => {
 		setSearchParams({
 			locality,
