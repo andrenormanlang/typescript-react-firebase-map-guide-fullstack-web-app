@@ -208,53 +208,53 @@ const PlaceFormPage = () => {
 												setErrorMessage(
 													"Please select a valid place"
 												);
-											return;
-										}
+												return;
+											}
 
-										setIsError(false);
-										setErrorMessage(null);
+											setIsError(false);
+											setErrorMessage(null);
 
-										setValue(
-											"_id",
-											String(result.place_id)
-										);
-										setValue("name", name);
-										setPlaceName(name);
+											setValue(
+												"_id",
+												String(result.place_id)
+											);
+											setValue("name", name);
+											setPlaceName(name);
 
-										const addressParts =
-											extractAddressPartsFromNominatim(
-												result.address
+											const addressParts =
+												extractAddressPartsFromNominatim(
+													result.address
+												);
+
+											const selectedStreetAddress =
+												addressParts.streetAddress?.trim() ||
+												formatStreetAddress(
+													result.display_name || "",
+													{ placeName: name }
+												);
+
+											setValue(
+												"streetAddress",
+												selectedStreetAddress
+											);
+											setValue(
+												"addressNumber",
+												addressParts.addressNumber ?? ""
+											);
+											setValue(
+												"neighborhood",
+												addressParts.neighborhood ?? ""
+											);
+											setValue(
+												"zipCode",
+												addressParts.zipCode ?? ""
 											);
 
-										const selectedStreetAddress =
-											addressParts.streetAddress?.trim() ||
-											formatStreetAddress(
-												result.display_name || "",
-												{ placeName: name }
-											);
-
-										setValue(
-											"streetAddress",
-											selectedStreetAddress
-										);
-										setValue(
-											"addressNumber",
-											addressParts.addressNumber ?? ""
-										);
-										setValue(
-											"neighborhood",
-											addressParts.neighborhood ?? ""
-										);
-										setValue(
-											"zipCode",
-											addressParts.zipCode ?? ""
-										);
-
-										const { lat, lng } =
-											getLatLngFromNominatim(result);
-										setSelectedPlace({ lat, lng });
-										setValue("location", { lat, lng });
-									}}
+											const { lat, lng } =
+												getLatLngFromNominatim(result);
+											setSelectedPlace({ lat, lng });
+											setValue("location", { lat, lng });
+										}}
 									/>
 
 									{placeName && (
@@ -296,77 +296,77 @@ const PlaceFormPage = () => {
 									</Form.Text>
 								</Form.Group>
 
-									<Form.Group
-										className="mb-3"
-										controlId="streetAddress"
-									>
-										<Form.Control
-											placeholder="Street Address*"
-											type="text"
-											{...register("streetAddress", {
-												required: "Street address missing",
-											})}
-										/>
-										{errors.streetAddress && (
-											<Form.Text className="invalid-value">
-												{errors.streetAddress.message}
-											</Form.Text>
-										)}
-									</Form.Group>
+								<Form.Group
+									className="mb-3"
+									controlId="streetAddress"
+								>
+									<Form.Control
+										placeholder="Street Address*"
+										type="text"
+										{...register("streetAddress", {
+											required: "Street address missing",
+										})}
+									/>
+									{errors.streetAddress && (
+										<Form.Text className="invalid-value">
+											{errors.streetAddress.message}
+										</Form.Text>
+									)}
+								</Form.Group>
 
-									<Form.Group
-										className="mb-3"
-										controlId="addressNumber"
-									>
-										<Form.Control
-											placeholder="Address Number*"
-											type="text"
-											{...register("addressNumber", {
-												required: "Address number missing",
-											})}
-										/>
-										{errors.addressNumber && (
-											<Form.Text className="invalid-value">
-												{errors.addressNumber.message}
-											</Form.Text>
-										)}
-									</Form.Group>
+								<Form.Group
+									className="mb-3"
+									controlId="addressNumber"
+								>
+									<Form.Control
+										placeholder="Address Number*"
+										type="text"
+										{...register("addressNumber", {
+											required: "Address number missing",
+										})}
+									/>
+									{errors.addressNumber && (
+										<Form.Text className="invalid-value">
+											{errors.addressNumber.message}
+										</Form.Text>
+									)}
+								</Form.Group>
 
-									<Form.Group
-										className="mb-3"
-										controlId="neighborhood"
-									>
-										<Form.Control
-											placeholder="Neighborhood*"
-											type="text"
-											{...register("neighborhood", {
-												required: "Neighborhood missing",
-											})}
-										/>
-										{errors.neighborhood && (
-											<Form.Text className="invalid-value">
-												{errors.neighborhood.message}
-											</Form.Text>
-										)}
-									</Form.Group>
+								<Form.Group
+									className="mb-3"
+									controlId="neighborhood"
+								>
+									<Form.Control
+										placeholder="Neighborhood*"
+										type="text"
+										{...register("neighborhood", {
+											required: "Neighborhood missing",
+										})}
+									/>
+									{errors.neighborhood && (
+										<Form.Text className="invalid-value">
+											{errors.neighborhood.message}
+										</Form.Text>
+									)}
+								</Form.Group>
 
-									<Form.Group
-										className="mb-3"
-										controlId="zipCode"
-									>
-										<Form.Control
-											placeholder="Zip Code*"
-											type="text"
-											{...register("zipCode", {
-												required: "Zip code missing",
-											})}
-										/>
-										{errors.zipCode && (
-											<Form.Text className="invalid-value">
-												{errors.zipCode.message}
-											</Form.Text>
-										)}
-									</Form.Group>
+								<Form.Group
+									className="mb-3"
+									controlId="zipCode"
+								>
+									<Form.Control
+										placeholder="Zip Code*"
+										type="text"
+										{...register("zipCode", {
+											required: "Zip code missing",
+										})}
+									/>
+									{errors.zipCode && (
+										<Form.Text className="invalid-value">
+											{errors.zipCode.message}
+										</Form.Text>
+									)}
+								</Form.Group>
 
 								<Form.Group
 									className="mb-3"
