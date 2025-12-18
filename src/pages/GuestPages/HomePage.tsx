@@ -8,10 +8,69 @@ import { useState } from "react";
 import { Place } from "../../types/Place.types";
 import { MdMenuOpen } from "react-icons/md";
 import SidebarContent from "../../components/GuestPages/HomePage/SidebarContent";
+import Form from "react-bootstrap/Form";
+import Card from "react-bootstrap/Card";
+import { useSearchParams } from "react-router-dom";
+
+const CITIES = ["Sao Paulo", "Malmö", "Copenhagen"] as const;
 
 const HomePage = () => {
 	const [places, setPlaces] = useState<Place[] | null>(null);
 	const [show, setShow] = useState(false);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const localityParam = searchParams.get("locality");
+	const [cityChoice, setCityChoice] = useState<string>(localityParam ?? "");
+	const needsCitySelection = !localityParam;
+
+	const handleConfirmCity = () => {
+		const next = cityChoice.trim();
+		if (!next) return;
+		setSearchParams({ locality: next }, { replace: true });
+	};
+
+	if (needsCitySelection) {
+		return (
+			<Container fluid className="py-3 center-y">
+				<Row className="d-flex justify-content-center">
+					<Col lg={{ span: 6 }}>
+						<Card>
+							<Card.Body>
+								<Card.Title className="mb-3">
+									Choose a city
+								</Card.Title>
+								<Form.Group
+									className="mb-3"
+									controlId="initial-city"
+								>
+									<Form.Select
+										value={cityChoice}
+										onChange={(e) =>
+											setCityChoice(e.target.value)
+										}
+									>
+										<option value="">Select City*</option>
+										{CITIES.map((c) => (
+											<option key={c} value={c}>
+												{c}
+											</option>
+										))}
+									</Form.Select>
+								</Form.Group>
+
+								<Button
+									variant="primary"
+									disabled={!cityChoice}
+									onClick={handleConfirmCity}
+								>
+									Continue
+								</Button>
+							</Card.Body>
+						</Card>
+					</Col>
+				</Row>
+			</Container>
+		);
+	}
 
 	return (
 		<>

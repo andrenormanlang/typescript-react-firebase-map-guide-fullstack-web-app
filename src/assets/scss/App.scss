@@ -30,6 +30,8 @@ body {
 	padding-bottom: 0;
 	background-color: $primaryColor;
 	color: #fff;
+	position: relative;
+	z-index: 1100;
 
 	.navbar-nav {
 		.nav-link {
@@ -47,31 +49,115 @@ a {
 	}
 }
 
-.search-box {
-	@media (max-width:576px) {
-		.searchbox-col:first-of-type {
-			margin-bottom: 0.5rem;
-		}
+// Mobile-first search box design
+.search-box-container {
+	background: rgba(255, 255, 255, 0.98);
+	backdrop-filter: blur(10px);
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	padding: 0.75rem;
+	max-width: 100%;
+	position: relative;
+	z-index: 1050;
+
+	@media (min-width: 768px) {
+		padding: 1rem;
+		max-width: 95%;
+		margin: 0 auto;
 	}
 
-	@media (max-width: 576px) {
-		max-width: 95%;
+	@media (min-width: 992px) {
+		max-width: 1100px;
+	}
+}
 
-		.searchbox-col {
-			// width: 100%;
-			margin-left: 0;
-			margin-right: 0;
+.search-box-row {
+	align-items: stretch;
+}
+
+.search-box-col {
+	display: flex;
+	align-items: stretch;
+}
+
+.search-box-select {
+	height: 48px;
+	font-size: 1rem;
+	font-weight: 500;
+	color: #212529;
+	border: 2px solid #6c757d;
+	border-radius: 8px;
+	padding: 0.5rem 0.75rem;
+	background-color: #fff;
+	transition: all 0.2s ease;
+	width: 100%;
+
+	&:focus {
+		border-color: #0056b3;
+		box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
+		outline: none;
+		color: #000;
+	}
+
+	&:hover {
+		border-color: #495057;
+	}
+
+	// Improve option contrast
+	option {
+		color: #212529;
+		background-color: #fff;
+		padding: 0.5rem;
+	}
+
+	@media (min-width: 768px) {
+		height: 44px;
+		font-size: 0.95rem;
+	}
+}
+
+.search-box-btn {
+	height: 48px;
+	font-size: 1rem;
+	font-weight: 600;
+	border-radius: 8px;
+	padding: 0.5rem 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	width: 100%;
+	background-color: #212529;
+	border-color: #212529;
+	color: #fff;
+
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		background-color: #000;
+		border-color: #000;
+	}
+
+	&:active {
+		transform: translateY(0);
+		background-color: #000;
+		border-color: #000;
+	}
+
+	&:focus {
+		box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.5);
+		background-color: #000;
+		border-color: #000;
+	}
+
+	@media (min-width: 768px) {
+		height: 44px;
+		font-size: 0.95rem;
+		padding: 0.5rem;
+
+		span {
+			display: none !important;
 		}
-
-		.searchbox-col:first-of-type {
-			margin-bottom: 0.5rem;
-		}
-
-		input,
-		button {
-			padding: 0.4rem;
-		}
-
 	}
 }
 

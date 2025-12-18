@@ -58,7 +58,7 @@ const MapViewUpdater = ({
 
 const HomeMap: React.FC<Props> = ({ placesFound }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const locality = searchParams.get("locality") ?? "São Paulo";
+	const locality = searchParams.get("locality") ?? "";
 	const category = searchParams.get("category") ?? "Category";
 	const supply = searchParams.get("supply") ?? "Supply";
 	const { position: usersPosition, error: currentPositionError } =
@@ -67,15 +67,14 @@ const HomeMap: React.FC<Props> = ({ placesFound }) => {
 		lat: -23.5505,
 		lng: -46.6333,
 	});
-	const [errorMsg, setErrorMsg] = useState<string | null>(null);
-	const [showPlaceModal, setShowPlaceModal] = useState(false);
 	const [clickedPlace, setClickedPlace] = useState<Place | null>(null);
-
+	const [showPlaceModal, setShowPlaceModal] = useState(false);
+	const [errorMsg, setErrorMsg] = useState<string>("");
 	const {
 		data: places,
 		getCollection,
 		error,
-	} = useStreamPlacesByLocality(category, supply);
+	} = useStreamPlacesByLocality(locality, category, supply);
 
 	const getCurrentCity = async (position: LatLngLiteral | undefined) => {
 		if (!position) return;
@@ -97,12 +96,14 @@ const HomeMap: React.FC<Props> = ({ placesFound }) => {
 		}
 	};
 
-	// When the user's position is obtained, center the map on their coordinates.
+	const hasExplicitLocality = searchParams.has("locality");
+
+	// When the user's position is obtained, center the map only if no city was selected.
 	useEffect(() => {
-		if (usersPosition) {
+		if (usersPosition && !hasExplicitLocality) {
 			setCenter(usersPosition);
 		}
-	}, [usersPosition]);
+	}, [usersPosition, hasExplicitLocality]);
 
 	const handleFilterCategoryChoice = (passedFilter: string) => {
 		setSearchParams({
@@ -117,6 +118,21 @@ const HomeMap: React.FC<Props> = ({ placesFound }) => {
 			locality,
 			category,
 			supply: passedFilter,
+		});
+	};
+
+	const handleFilterCityChoice = (passedCity: string) => {
+		if (passedCity === "City") {
+			setSearchParams({
+				category,
+				supply,
+			});
+			return;
+		}
+		setSearchParams({
+			locality: passedCity,
+			category,
+			supply,
 		});
 	};
 
@@ -146,7 +162,30 @@ const HomeMap: React.FC<Props> = ({ placesFound }) => {
 
 	const queryCity = useCallback(async (city: string) => {
 		try {
-			const results = await nominatimSearch(city + ", Brasil");
+			const normalized = city.trim().toLowerCase();
+			// Prefer fixed centers for known cities (fast + reliable)
+			if (normalized === "sao paulo" || normalized === "são paulo") {
+				setCenter({ lat: -23.5505, lng: -46.6333 });
+				return;
+			}
+			if (normalized === "malmö" || normalized === "malmo") {
+				setCenter({ lat: 55.605, lng: 13.0038 });
+				return;
+			}
+			if (
+				normalized === "copenhagen" ||
+				normalized === "köbenhavn" ||
+				normalized === "københavn"
+			) {
+				setCenter({ lat: 55.6761, lng: 12.5683 });
+				return;
+			}
+
+			// Fallback: geocode without forcing Brazil
+			const results = await nominatimSearch(city, {
+				countryCodes: ["br", "se", "dk"],
+				acceptLanguage: "en,pt-BR,sv,da",
+			});
 			const first = results[0];
 			if (!first) return;
 			const { lat, lng } = getLatLngFromNominatim(first);
@@ -214,20 +253,21 @@ const HomeMap: React.FC<Props> = ({ placesFound }) => {
 			</MapContainer>
 
 			<div
+				className="search-box-wrapper"
 				style={{
 					position: "absolute",
-					top: 0,
-					left: 0,
-					right: 0,
+					top: "0.75rem",
+					left: "0.5rem",
+					right: "0.5rem",
 					zIndex: 1000,
-					display: "flex",
-					justifyContent: "center",
 				}}
 			>
 				<SearchBox
 					handleFindLocation={handleFindLocation}
+					passCityFilter={handleFilterCityChoice}
 					passCategoryFilter={handleFilterCategoryChoice}
 					passSupplyFilter={handleFilterSupplyChoice}
+					cityFilter={locality || "City"}
 					categoryFilter={category}
 					supplyFilter={supply}
 				/>

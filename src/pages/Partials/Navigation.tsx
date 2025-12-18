@@ -11,7 +11,7 @@ import hangry from '../../assets/images/hangry.svg'
 const Hangry = () => {
 	return (
 		<Image
-			alt='Hanger Management Logo'
+			alt='Hangry Food Guide Map Logo'
 			className='img-square me-2'
 			height={60}
 			src={hangry}
@@ -36,9 +36,9 @@ const Navigation = () => {
 					to='/'
 				>
 					<Hangry />
-					Hanger
-					<span className='d-none d-sm-inline'> Management</span>
-					<span className='d-inline d-sm-none'> Mgmt</span>
+
+					<span className='d-none d-sm-inline'> Food Guide Map</span>
+					<span className='d-inline d-sm-none'>Food Guide Map</span>
 				</Navbar.Brand>
 					<Nav>
 						{signedInUser ? (

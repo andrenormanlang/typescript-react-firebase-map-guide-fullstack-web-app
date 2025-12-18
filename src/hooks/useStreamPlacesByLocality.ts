@@ -1,42 +1,39 @@
-import { where } from 'firebase/firestore'
-import useStreamCollection from './useStreamCollection'
-import { placesCol } from '../services/firebase'
-import { Place } from '../types/Place.types'
+import { QueryConstraint, where } from "firebase/firestore";
+import useStreamCollection from "./useStreamCollection";
+import { placesCol } from "../services/firebase";
+import { Place } from "../types/Place.types";
 
-// const useStreamPlacesByLocality = (locality: string, category: string, supply: string) => {
-const useStreamPlacesByLocality = ( category: string, supply: string) => {
-	return useStreamCollection<Place>(
-		placesCol,
-		where("isApproved", "==", true),
-		// where("city", "==", locality),
-		where(
-			"category",
-			"in",
-			category === "Category"
-				? [
-					"Café",
-					"Pub",
-					"Restaurant",
-					"Fast Food",
-					"Kiosk/grill",
-					"Food Truck",
-				]
-				: [category]
-		),
-		where(
-			"supply",
-			"in",
-			supply === "Supply"
-				? [
-					'General Menu',
-					'Lunch',
-					'After Work',
-					'Dinner',
-					'Breakfast/Brunch'
-				]
-				: [supply]
-		),
-	)
-}
+const useStreamPlacesByLocality = (
+	city: string,
+	category: string,
+	supply: string
+) => {
+	// Firestore limitation: only ONE `in`/`array-contains-any` filter per query.
+	// So we build a query with equality filters only when a filter is chosen.
+	const constraints: QueryConstraint[] = [where("isApproved", "==", true)];
 
-export default useStreamPlacesByLocality
+	// Only filter by city if we have a valid city selected
+	// This allows older documents without the city field to still show
+	if (city && city !== "City") {
+		constraints.push(where("city", "==", city));
+	}
+
+	if (category !== "Category") {
+		constraints.push(where("category", "==", category));
+	}
+
+	if (supply !== "Supply") {
+		constraints.push(where("supply", "==", supply));
+	}
+
+	console.log("[useStreamPlacesByLocality] Query constraints:", {
+		city,
+		category,
+		supply,
+		constraintsCount: constraints.length,
+	});
+
+	return useStreamCollection<Place>(placesCol, ...constraints);
+};
+
+export default useStreamPlacesByLocality;
