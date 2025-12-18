@@ -53,3 +53,51 @@ An app that acts as a food guide for those moments when you're "hangry" 😤🍕
 - 🔧 Update their own profiles, including name, profile image URL, email, and password.
 
 ⚠️ Please note: Searches for restaurants are restricted to selected locations.
+
+## 🌱 Seed Firestore (real places)
+
+This repo includes a seed script that (by default) fetches real place POIs from OpenStreetMap (Overpass API) and inserts them into the `places` collection for:
+- `Sao Paulo`
+- `Malmö`
+- `Copenhagen`
+
+It uses the Firebase Admin SDK (service account) and **does not** commit any secrets.
+
+### 1) Create a Firebase service account key
+
+In Firebase Console → Project settings → Service accounts → Generate new private key.
+Save it somewhere outside the repo (for example `C:\secrets\serviceAccount.json`).
+
+### 2) Run the seed script (PowerShell)
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS = "C:\\secrets\\serviceAccount.json"
+npm run seed:firestore
+```
+
+If you prefer not to set an environment variable, pass the path directly:
+
+```powershell
+npm run seed:firestore -- --creds "C:\\secrets\\serviceAccount.json"
+```
+
+### (Optional) Control how many places are seeded
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS = "C:\\secrets\\serviceAccount.json"
+npm run seed:firestore -- --count 100
+```
+
+### (Optional) Use the built-in static demo list
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS = "C:\\secrets\\serviceAccount.json"
+npm run seed:firestore -- --static
+```
+
+### (Optional) Delete only the seeded places
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS = "C:\\secrets\\serviceAccount.json"
+npm run seed:firestore -- --delete-seed
+```
