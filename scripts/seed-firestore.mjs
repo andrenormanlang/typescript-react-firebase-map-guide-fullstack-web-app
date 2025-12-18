@@ -613,8 +613,7 @@ const main = async () => {
 		? Number(totalCountRaw)
 		: DEFAULT_TOTAL_COUNT;
 	const useStatic = args.includes("--static") || getNpmFlag("static");
-	const useReal =
-		args.includes("--real") || getNpmFlag("real") || !useStatic;
+	const useReal = args.includes("--real") || getNpmFlag("real") || !useStatic;
 
 	const serviceAccount = getServiceAccount(args);
 	if (!serviceAccount) {
@@ -656,7 +655,8 @@ const main = async () => {
 	db.settings({ ignoreUndefinedProperties: true });
 	const placesRef = db.collection("places");
 
-	const deleteSeed = args.includes("--delete-seed") || getNpmFlag("delete_seed");
+	const deleteSeed =
+		args.includes("--delete-seed") || getNpmFlag("delete_seed");
 	if (deleteSeed) {
 		const snap = await placesRef.where("uid", "==", SEED_UID).get();
 
